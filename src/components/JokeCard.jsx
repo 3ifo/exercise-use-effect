@@ -1,0 +1,61 @@
+/* 1. Crea un componente JokeCard che contiene uno state [joke, setJoke].
+Dopo il mounting del componente, si effettua una fetch a https://v2.jokeapi.dev/joke/Programming?type=twopart 
+che ci ritorna una barzelletta sulla Programmazione, in due parti.
+Ricordatevi di gestire gli errori! (fate dei test inserendo un endpoint rotto). 
+La barzelletta ottenuta dal fetch deve venire salvata nello state [joke, setJoke], inizialmente undefined.
+
+2. Fintanto che joke è undefined, JokeCard renderizza un div con scritto all'interno "Loading...".
+Quando joke non è undefined, JokeCard ci mostra la parte 1 della barzelletta (proprietà "setup" dell'oggetto che ritorna il fetch).
+
+3. Quando joke non è undefined, JokeCard renderizza anche un bottone "Answer". Al click del bottone "Answer", 
+JokeCard mostra la parte 2 della barzelletta.
+
+4. Al click del bottone "Answer", JokeCard mostra la parte 2 della barzelletta e il bottone "Answer" 
+viene sostituito da un bottone "Reload". Al onClick di "Reload", viene caricata una nuova barzelletta.
+ */
+
+import { useEffect, useState } from "react";
+
+const JokeCard = () => {
+  const [joke, setJoke] = useState();
+  const [partTwo, setPartTwo] = useState(false);
+
+  const returnPartTwo = (joke) => {
+    return <p>{joke.delivery}</p>;
+  };
+
+  const handleClick = () => {
+    setPartTwo(true);
+  };
+
+  const handleJoke = async () => {
+    try {
+      const response = await fetch(
+        "https://v2.jokeapi.dev/joke/Programming?type=twopart"
+      );
+      const result = await response.json();
+      setJoke(result);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    handleJoke();
+  }, []);
+
+  if (joke === undefined) {
+    return <div>Loading...</div>;
+  } else {
+    return (
+      <div>
+        <h2>Barzelletta:</h2>
+        {joke.setup}
+        <button onClick={handleClick}>Answer</button>
+        {partTwo && returnPartTwo(joke)}
+      </div>
+    );
+  }
+};
+
+export default JokeCard;
